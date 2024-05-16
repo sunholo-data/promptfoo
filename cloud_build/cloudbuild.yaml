@@ -5,7 +5,8 @@ substitutions:
   _SERVICE_NAME: promptfoo
   _REGION: terraform_managed
   _PROJECT_ID: terraform_managed
-  _CONFIG_BUCKET: promptfoo-bucket
+  _PROMPTFOO_BUCKET: terraform_managed
+  _PROMPTFOO_URL: terraform_managed
 
 tags: ['${_PROJECT_ID}', '${_SERVICE_NAME}']
 
@@ -16,7 +17,11 @@ logsBucket: gs://multivac-deploy-logging-bucket
 steps:
   - name: 'gcr.io/cloud-builders/docker'
     dir: ${_BUILD_FOLDER}
-    args: ['build', '-t', '${_ARTIFACT_REGISTRY_REPO_URL}/${_IMAGE_NAME}/${_SERVICE_NAME}:${BRANCH_NAME}', '-f', 'Dockerfile', '.', '--network=cloudbuild']
+    args: ['build', 
+           '-t', '${_ARTIFACT_REGISTRY_REPO_URL}/${_IMAGE_NAME}/${_SERVICE_NAME}:${BRANCH_NAME}', 
+           '-f', 'Dockerfile', '.', 
+           '--build-arg', 'NEXT_PUBLIC_PROMPTFOO_BASE_URL=${_PROMPTFOO_URL}',
+           '--network=cloudbuild']
 
   - name: 'gcr.io/cloud-builders/docker'
     dir: ${_BUILD_FOLDER}
@@ -42,5 +47,5 @@ steps:
            --update-secrets=OPENAI_API_KEY=OPENAI_API_KEY:latest \
            --update-secrets=ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest \
            --session-affinity \
-           --add-volume name=gcs_config,type=cloud-storage,bucket=${_PROJECT_ID}-${BRANCH_NAME}-${_CONFIG_BUCKET},readonly=true \
+           --add-volume name=gcs_config,type=cloud-storage,bucket=${_PROMPTFOO_BUCKET},readonly=true \
            --add-volume-mount volume=gcs_config,mount-path=/root/.promptfoo
