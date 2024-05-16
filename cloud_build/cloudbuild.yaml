@@ -51,5 +51,5 @@ steps:
            --update-secrets=LANGFUSE_SECRET_KEY=LANGFUSE_API_KEY:latest \
            --update-secrets=LANGFUSE_PUBLIC_KEY=LANGFUSE_PUBLIC_KEY:latest \
            --session-affinity \
-           --add-volume name=gcs_config,type=cloud-storage,bucket=${_PROMPTFOO_BUCKET},readonly=true \
+           --add-volume name=gcs_config,type=cloud-storage,bucket=${_PROMPTFOO_BUCKET},readonly=false \
            --add-volume-mount volume=gcs_config,mount-path=/root/.promptfoo
